@@ -3,10 +3,10 @@ var inquirer = require('inquirer');
 
 var connection = mysql.createConnection({
     host: "localhost",
-    port: 8888,
+    port: "3306",
     user: "root", //Your username
-    password: "root", //Your password
-    database: "bamazon" //database name
+    password: "root", //your password
+    database: "Bamazon" //database name
 })
 
 connection.connect(function(err) {
@@ -19,7 +19,7 @@ var list = function() {
 	var query = 'SELECT * FROM `products`';
 	connection.query(query, function (err, res) {
 		for (var i = 0; i < res.length; i++) {
-        	console.log("\n" + res[i].id + " | " + res[i].productname + " | " + res[i].price);
+        	console.log("\n" + res[i].itemID + " | " + res[i].productName + " | " + res[i].price);
     	}
     	console.log("-----------------------------------");
     	buy();
@@ -27,9 +27,9 @@ var list = function() {
 //Prompt user for the id number of item to purchase using npm inquirer
 	var buy = function() {
 	    inquirer.prompt([{
-	        name: "id",
+	        name: "itemID",
 	        type: "input",
-	        message: "Enter the id number (1-10) of the product you would like to buy: \n",
+	        message: "Enter the itemID number (1-10) of the product you would like to buy: \n",
 	        validate: function(value) {
 	        	//If the input is a number between 1 and 10, returen true.
 	        	//Otherwise prompt the user for a valid number.
@@ -41,7 +41,7 @@ var list = function() {
 	                buy();
 	            }
 	        }, {
-	        name: "quantity",
+	        name: "productQuantity",
 	        type: "input",
 	        message: "How many do you want to buy? ",
 	        validate: function(value) {
@@ -57,25 +57,25 @@ var list = function() {
 	    }]).then(function(answer) {
 	    	//query should return price and quantity from the products database.
 	    	var query = 'SELECT price,stockquantity FROM products WHERE ?';
-	    	connection.query(query, [answer.id], function(err, res) {
+	    	connection.query(query, [answer.itemID], function(err, res) {
 	    		//The index of the selection is the ID minus one.
-	            i = answer.id - 1;
+	            i = answer.itemID - 1;
 	            //The total cost is the quantity times the price of the selected item.
-	    			var cost = (answer.quantity) * (res[i].price);
+	    			var cost = (answer.productQuantity) * (res[i].price);
 	    		if (err) {
 	                console.log("Error " + err);
 	                return;
 	                //Alert the user if there is insufficient inventory to fulfill the order.
-	            } else if (answer.quantity > res[i].stockquantity) {
+	            } else if (answer.productQuantity > res[i].stockQuantity) {
 	            	console.log("Insufficient inventory! Try again later.");
 	            	//end the connection to the database.
 	            	connection.end();
 	            } else {    
 	            //If there is sufficient inventory, update the stock in the database by id number	
-	            	var query = 'UPDATE `products` SET stockquantity = (stockquantity - ?) WHERE id = ?';
-	    			connection.query(query, [answer.quantity, answer.id], function(err, res) {
+	            	var query = 'UPDATE `products` SET stockquantity = (stockquantity - ?) WHERE itemID = ?';
+	    			connection.query(query, [answer.productQuantity, answer.itemID], function(err, res) {
 	    				//Index is the id number minus one.
-	    				i = answer.id - 1;
+	    				i = answer.itemID - 1;
 	            		if (err) {
 	                	console.log("Error " + err);
 	                	return;
