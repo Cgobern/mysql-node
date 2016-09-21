@@ -56,7 +56,7 @@ var list = function() {
 	        }
 	    }]).then(function(answer) {
 	    	//query should return price and quantity from the products database.
-	    	var query = 'SELECT price,stockquantity FROM products WHERE ?';
+	    	var query = 'SELECT price,stockQuantity FROM products WHERE ?';
 	    	connection.query(query, [answer.itemID], function(err, res) {
 	    		//The index of the selection is the ID minus one.
 	            i = answer.itemID - 1;
